@@ -4,6 +4,19 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from bullet import Bullet
+from gamestate import ScoreTracker
+
+
+
+def display_score(screen, score):
+    pygame.font.init()
+    my_font = pygame.font.SysFont('Arial', 30)
+    text_surface = my_font.render(f"{score}", True, (200, 0, 0))
+    screen.blit(text_surface, (10,10))
+
+
+
+
 
 def main():
     pygame.init
@@ -29,7 +42,11 @@ def main():
 
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    asteroid_field = AsteroidField()
+    score_tracker = ScoreTracker()
+    asteroid_field = AsteroidField(score_tracker.add)
+
+    is_alive = True
+
 
     while True:
         for event in pygame.event.get():
@@ -37,22 +54,27 @@ def main():
                 return
             
         screen.fill("black")
-        updatable.update(dt)
-        
-        for obj in asteroids:
-            if obj.is_colliding(player):
-                print("Game over!")
-                return
+
+        if(is_alive):
+            updatable.update(dt)
             
-            for bullet in bullets:
-                if bullet.is_colliding(obj):
-                    bullet.kill()
-                    obj.split()
+            for obj in asteroids:
+                if obj.is_colliding(player):
+                    print("GAME OVER!")
+                    print(f"FINAL SCORE : {score_tracker.score}")
+                    return
+                
+                for bullet in bullets:
+                    if bullet.is_colliding(obj):
+                        bullet.kill()
+                        obj.split()
 
 
-        for obj in drawable:
-            obj.draw(screen)
-        
+            for obj in drawable:
+                obj.draw(screen)
+            
+            display_score(screen, score_tracker.score)
+
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
@@ -60,3 +82,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+

@@ -5,8 +5,10 @@ import random
 
 
 class Asteroid(CircleShape):
-    def __init__(self, x, y, radius):
+    def __init__(self, x, y, radius,  score_callback=None):
         super().__init__(x, y, radius)
+        self.score_add = score_callback
+       
 
     def draw(self, screen):
         pygame.draw.circle(screen, "white", self.position, self.radius, 2) # type: ignore
@@ -17,13 +19,15 @@ class Asteroid(CircleShape):
     def split(self):
         self.kill()
         if(self.radius <= ASTEROID_MIN_RADIUS):
+            self.score_add(20)
             return
         
         new_angle = random.uniform(20, 50)
         vec_a = self.velocity.rotate(new_angle)
         vec_b = self.velocity.rotate(-new_angle)
         new_radius = self.radius - ASTEROID_MIN_RADIUS
-        new_asteroid_a = Asteroid(self.position.x, self.position.y, new_radius)
+        new_asteroid_a = Asteroid(self.position.x, self.position.y, new_radius, self.score_add)
         new_asteroid_a.velocity = vec_a * 1.2
-        new_asteroid_b = Asteroid(self.position.x, self.position.y, new_radius)
+        new_asteroid_b = Asteroid(self.position.x, self.position.y, new_radius, self.score_add)
         new_asteroid_b.velocity = vec_b * 1.2
+        self.score_add(5)
