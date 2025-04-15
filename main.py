@@ -5,6 +5,7 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from bullet import Bullet
 from gamestate import *
+from powerups import *
 
 
 
@@ -63,33 +64,51 @@ def main():
     pygame.font.init()
     print("Starting Asteroids")
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    is_alive = True
 
     user = pygame.sprite.Group()
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()
 
 
     Player.containers = (updatable, drawable, user)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
     Bullet.containers = (updatable, drawable, bullets)
+    ExtraLife.containers = (updatable, drawable, powerups)
+    MainGunSpeedBoost.containers = (updatable, drawable, powerups)
+    MainGunRadiusBoost.containers = (updatable, drawable, powerups)
+    SplitGunLevelBoost.containers = (updatable, drawable, powerups)
+    SplitGunSpeedBoost.containers = (updatable, drawable, powerups)
+    SplitGunRadiusBoost.containers = (updatable, drawable, powerups)
+
+
     
     lives_tracker = LivesTracker()
     score_tracker = ScoreTracker()
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    asteroid_field = AsteroidField(score_tracker.add)
+
+    
+    
 
     def reset_game(is_new_game):
-        nonlocal is_alive, player
-        if(is_new_game == True):
-            score_tracker.score = 0
-            lives_tracker.lives = PLAYER_STARTING_LIVES
-        player.position.x = SCREEN_WIDTH / 2
-        player.position.y = SCREEN_HEIGHT / 2
-        is_alive = True
+        for asteroid in asteroids:
+            asteroid.kill()
+        for bullet in bullets:
+            bullet.kill()
+        for powerup in powerups:
+            powerup.kill()
+
+
+
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, reset_game)
+    asteroid_field = AsteroidField(player, bullets)
+
+    
+
+
+
 
 
 
@@ -97,51 +116,25 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             return
 
         screen.fill("black")
 
-
-        
-        if(is_alive):
+        if(player.lives > 0):
             updatable.update(dt)
-
-            for obj in asteroids:
-                if obj.is_colliding(player):
-                    lives_tracker.subtract()
-                    for asteroid in asteroids:
-                        asteroid.kill()
-                    for bullet in bullets:
-                        bullet.kill()
-                    if lives_tracker.lives <= 0:
-                        is_alive = False
-                        print("GAME OVER!")
-                        print(f"FINAL SCORE : {score_tracker.score}")
-                    else:
-                        reset_game(False)
-
-
-                    
-                    
-                
-                for bullet in bullets:
-                    if bullet.is_colliding(obj):
-                        bullet.kill()
-                        obj.split()
-
 
             for obj in drawable:
                 obj.draw(screen)
-            
-            display_score(screen, score_tracker.score)
-            display_lives(screen, lives_tracker.lives)
+
+            display_score(screen, player.score)
+            display_lives(screen, player.lives)
         else :
             if keys[pygame.K_RETURN]:
                 reset_game(True)
-            display_game_over(screen, score_tracker.score)
+                player.reset(True)
+            display_game_over(screen, player.score)
 
 
         pygame.display.flip()

@@ -28,13 +28,14 @@ class AsteroidField(pygame.sprite.Sprite):
         ],
     ]
 
-    def __init__(self,  score_callback=None):
+    def __init__(self, player, bullets):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.spawn_timer = 0.0
-        self.score_callback = score_callback
+        self.player = player
+        self.bullets = bullets
 
     def spawn(self, radius, position, velocity):
-        asteroid = Asteroid(position.x, position.y, radius, self.score_callback)
+        asteroid = Asteroid(position.x, position.y, radius, self.player, self.bullets)
         asteroid.velocity = velocity
 
     def update(self, dt):

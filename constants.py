@@ -9,9 +9,53 @@ ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS
 PLAYER_STARTING_LIVES = 3
 PLAYER_RADIUS = 20
 PLAYER_TURN_SPEED = 300
-PLAYER_SPEED = 200
+PLAYER_BASE_SPEED = 200
 
 SHOT_RADIUS = 5
 PLAYER_SHOOT_SPEED = 500
-PLAYER_SHOOT_COOLDOWN = 0.3
+PLAYER_BASE_SHOOT_COOLDOWN = 0.3
+
+
+
+PLAYER_FILL_COLORS = {
+    1: "blue",
+    2: "cyan",
+    3: "limegreen"
+}
+
+PLAYER_EDGE_COLORS = {
+    1: "blue",
+    2: "cyan",
+    3: "limegreen"
+}
+
+
+BULLET_FILL_COLORS = {
+    1: "blue",
+    2: "cyan",
+    3: "limegreen"
+}
+
+BULLET_EDGE_COLORS = {
+    1: "blue",
+    2: "cyan",
+    3: "limegreen"
+}
+
+BULLET_RADIUS = {
+    1: SHOT_RADIUS,
+    2: SHOT_RADIUS * 2,
+    3: SHOT_RADIUS * 3
+}
+
+COOLDOWN_MULTIPLIERS = {
+    1: 1,
+    2: 0.5,
+    3: 0.25
+}
+
+
+
+
+
 
