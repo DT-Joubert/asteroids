@@ -8,44 +8,84 @@ from gamestate import ScoreTracker
 
 
 
+
 def display_score(screen, score):
-    pygame.font.init()
     my_font = pygame.font.SysFont('Arial', 30)
     text_surface = my_font.render(f"{score}", True, (200, 0, 0))
     screen.blit(text_surface, (10,10))
+
+
+def display_game_over(screen, score):
+    screen_width = screen.get_width()
+    screen_height = screen.get_height()
+
+    game_over_font = pygame.font.SysFont('Arial', 30)
+    high_score_font = pygame.font.SysFont('Arial', 35)
+    press_enter_font = pygame.font.SysFont('Arial', 30)
+
+    top_surface = game_over_font.render("GAME OVER", True, (255, 255, 255))
+    top_width = top_surface.get_width()
+    top_height = top_surface.get_height()
+    top_x = (screen_width - top_width) // 2
+    top_y = (screen_height - top_height) // 2 + 50
+
+    middle_surface = high_score_font.render(f"HIGH SCORE: {score}", True, (255, 255, 255))
+    middle_width = middle_surface.get_width()
+    middle_height = middle_surface.get_height()
+    middle_x = (screen_width - middle_width) // 2
+    middle_y = (screen_height - middle_height) // 2
+
+
+    bottom_surface = high_score_font.render("PRESS [ENTER] TO PLAY", True, (255, 255, 255))
+    bottom_width = bottom_surface.get_width()
+    bottom_height = bottom_surface.get_height()
+    bottom_x = (screen_width - bottom_width) // 2
+    bottom_y = (screen_height - bottom_height) // 2 - 50
+
+
+    screen.blit(top_surface, (top_x, top_y))
+    screen.blit(middle_surface, (middle_x, middle_y))
+    screen.blit(bottom_surface, (bottom_x, bottom_y))
 
 
 
 
 
 def main():
-    pygame.init
+    pygame.init()
     clock = pygame.time.Clock()
     dt = 0
-    print("Starting Asteroids!")
-    print(f"Screen width: {SCREEN_WIDTH}")
-    print(f"Screen height: {SCREEN_HEIGHT}")
+    pygame.font.init()
+    print("Starting Asteroids")
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    
+    is_alive = True
+
+    user = pygame.sprite.Group()
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
 
 
-    Player.containers = (updatable, drawable)
+    Player.containers = (updatable, drawable, user)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
     Bullet.containers = (updatable, drawable, bullets)
     
-    
-
-
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     score_tracker = ScoreTracker()
-    asteroid_field = AsteroidField(score_tracker.add)
 
-    is_alive = True
+    def reset_game():
+        nonlocal is_alive
+        score_tracker.score = 0
+        is_alive = True
+
+
+    def get_is_alive():
+        return is_alive
+
+
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, get_is_alive, reset_game)
+    asteroid_field = AsteroidField(score_tracker.add)
 
 
     while True:
@@ -55,6 +95,7 @@ def main():
             
         screen.fill("black")
 
+        
         if(is_alive):
             updatable.update(dt)
             
@@ -62,7 +103,11 @@ def main():
                 if obj.is_colliding(player):
                     print("GAME OVER!")
                     print(f"FINAL SCORE : {score_tracker.score}")
-                    return
+                    for asteroid in asteroids:
+                        asteroid.kill()
+                    for bullet in bullets:
+                        bullet.kill()
+                    is_alive = False
                 
                 for bullet in bullets:
                     if bullet.is_colliding(obj):
@@ -74,6 +119,9 @@ def main():
                 obj.draw(screen)
             
             display_score(screen, score_tracker.score)
+        else :
+            user.update(dt)
+            display_game_over(screen, score_tracker.score)
 
 
         pygame.display.flip()
