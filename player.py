@@ -5,12 +5,11 @@ from bullet import Bullet
 
 
 class Player(CircleShape):
-    def __init__(self, x, y, alive_callback=None, reset_callback=None):
+    def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.shot_cooldown = 0
-        self.alive_callback = alive_callback
-        self.reset_callback = reset_callback
+        
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation) # type: ignore
@@ -52,22 +51,17 @@ class Player(CircleShape):
             self.shot_cooldown -= dt
 
         keys = pygame.key.get_pressed()
-
-        if self.alive_callback():
-            if keys[pygame.K_a]:
-                self.rotate(-dt)
-            if keys[pygame.K_d]:
-                self.rotate(dt)
-            if keys[pygame.K_w]:
-                self.move(dt)
-            if keys[pygame.K_s]:
-                self.move(-dt)
-            if keys[pygame.K_SPACE]:
-                if(self.shot_cooldown <= 0):
-                    self.shoot(self.position.x, self.position.y, SHOT_RADIUS)
-        else:
-            if keys[pygame.K_RETURN]:
-                self.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-                self.reset_callback()
+        if keys[pygame.K_LEFT]:
+            self.rotate(-dt)
+        if keys[pygame.K_RIGHT]:
+            self.rotate(dt)
+        if keys[pygame.K_UP]:
+            self.move(dt)
+        if keys[pygame.K_DOWN]:
+            self.move(-dt)
+        if keys[pygame.K_SPACE]:
+            if(self.shot_cooldown <= 0):
+                self.shoot(self.position.x, self.position.y, SHOT_RADIUS)
+        
 
     

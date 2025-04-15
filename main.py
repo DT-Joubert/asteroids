@@ -73,32 +73,34 @@ def main():
     Bullet.containers = (updatable, drawable, bullets)
     
     score_tracker = ScoreTracker()
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    asteroid_field = AsteroidField(score_tracker.add)
 
     def reset_game():
-        nonlocal is_alive
+        nonlocal is_alive, player
         score_tracker.score = 0
+        player.position.x = SCREEN_WIDTH / 2
+        player.position.y = SCREEN_HEIGHT / 2
         is_alive = True
 
-
-    def get_is_alive():
-        return is_alive
-
-
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, get_is_alive, reset_game)
-    asteroid_field = AsteroidField(score_tracker.add)
 
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-            
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            return
+
         screen.fill("black")
+
 
         
         if(is_alive):
             updatable.update(dt)
-            
+
             for obj in asteroids:
                 if obj.is_colliding(player):
                     print("GAME OVER!")
@@ -120,7 +122,8 @@ def main():
             
             display_score(screen, score_tracker.score)
         else :
-            user.update(dt)
+            if keys[pygame.K_RETURN]:
+                reset_game()
             display_game_over(screen, score_tracker.score)
 
 
