@@ -1,3 +1,5 @@
+from constants import *
+
 class ScoreTracker:
     def __init__(self):
         self.score = 0
@@ -7,10 +9,13 @@ class ScoreTracker:
 
 class LivesTracker:
     def __init__(self):
-        self.lives = 3
+        self.lives = PLAYER_STARTING_LIVES
 
     def add(self):
         self.lives += 1
+
+    def subtract(self):
+        self.lives -= 1
 
 class WeaponTracker:
     def __init__(self):

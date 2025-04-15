@@ -4,7 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from bullet import Bullet
-from gamestate import ScoreTracker
+from gamestate import *
 
 
 
@@ -13,6 +13,11 @@ def display_score(screen, score):
     my_font = pygame.font.SysFont('Arial', 30)
     text_surface = my_font.render(f"{score}", True, (200, 0, 0))
     screen.blit(text_surface, (10,10))
+
+def display_lives(screen, lives):
+    my_font = pygame.font.SysFont('Arial', 30)
+    text_surface = my_font.render(f"LIVES: {lives}", True, (100, 100, 255))
+    screen.blit(text_surface, (10,50))
 
 
 def display_game_over(screen, score):
@@ -72,13 +77,16 @@ def main():
     AsteroidField.containers = (updatable)
     Bullet.containers = (updatable, drawable, bullets)
     
+    lives_tracker = LivesTracker()
     score_tracker = ScoreTracker()
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField(score_tracker.add)
 
-    def reset_game():
+    def reset_game(is_new_game):
         nonlocal is_alive, player
-        score_tracker.score = 0
+        if(is_new_game == True):
+            score_tracker.score = 0
+            lives_tracker.lives = PLAYER_STARTING_LIVES
         player.position.x = SCREEN_WIDTH / 2
         player.position.y = SCREEN_HEIGHT / 2
         is_alive = True
@@ -103,13 +111,21 @@ def main():
 
             for obj in asteroids:
                 if obj.is_colliding(player):
-                    print("GAME OVER!")
-                    print(f"FINAL SCORE : {score_tracker.score}")
+                    lives_tracker.subtract()
                     for asteroid in asteroids:
                         asteroid.kill()
                     for bullet in bullets:
                         bullet.kill()
-                    is_alive = False
+                    if lives_tracker.lives <= 0:
+                        is_alive = False
+                        print("GAME OVER!")
+                        print(f"FINAL SCORE : {score_tracker.score}")
+                    else:
+                        reset_game(False)
+
+
+                    
+                    
                 
                 for bullet in bullets:
                     if bullet.is_colliding(obj):
@@ -121,9 +137,10 @@ def main():
                 obj.draw(screen)
             
             display_score(screen, score_tracker.score)
+            display_lives(screen, lives_tracker.lives)
         else :
             if keys[pygame.K_RETURN]:
-                reset_game()
+                reset_game(True)
             display_game_over(screen, score_tracker.score)
 
 
